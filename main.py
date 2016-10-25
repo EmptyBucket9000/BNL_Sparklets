@@ -12,17 +12,18 @@ import callable_functions as cf
 def main():
     
     make_plots = 1                      # 1 to make plots, 0 to skip
-    save_plots = 1                      # 1 to save plots, 0 to skip
+    save_plots = 0                      # 1 to save plots, 0 to skip
 #    save_output = 1                     # 1 to save data to csv
     vary = 1                            # 1 to include the change in E-field
-    plot_save_text = "real_quad_entire" # Text to distinguish specific saves
-    full_quad_coverage = 0              # 1 to place quads around entire ring
+    plot_save_text = "full_quad_entire" # Text to distinguish specific saves
+    full_quad_coverage = 1              # 1 to place quads around entire ring
 
     yprime_limit = 0.00001              # To record y_max
     lw = 0.1                            # Thickness of plotted lines
-    steps = 5*10**6                     # Number of steps for integration
-    dt = 10**-11                        # Timestep for integration
-    d_i = int(steps/5)
+    steps = 5*10**5                     # Number of steps for integration
+    dt = 10**-10                        # Timestep for integration
+#    d_i = int(steps/5)
+    d_i = int(1010)
     tt = np.linspace(0,dt*steps,steps)  # For plotting
     tt = np.reshape(tt,(steps,1))
     p_mag = 3.09435*10**9               # (eV/c) Possible positron momentums
@@ -36,7 +37,7 @@ def main():
     n = .142                            # () Used in E-field
     recovered = -2                      # 0 if E-field not recovered from drop
     if vary == 1:
-        drop = 180                      # Drop in voltage
+        drop = -180                      # Drop in voltage
     elif vary == 0:
         drop = 0
         plot_save_text = "no_vary"      # Text to distinguish specific saves
@@ -197,6 +198,13 @@ def main():
         # Get the electric field based on position
         E = cf.getElectricField(x,R,B,n)
         
+        # New arc position
+        
+        s_old = s
+        s = s_old + dt * np.sqrt(v[0]**2 + v[1]**2)
+        
+        yprime = (x[2] - x_old[2])/(s - s_old)
+        
         if recovered == -2 or recovered == 1:
             
             E0[i+1] = E0_max
@@ -215,7 +223,9 @@ def main():
             
         if vary == 1:
         
-            if i > d_i and recovered == -2:
+            ''' Change this if statement for various points around y,y''''
+        
+            if i > d_i and x[2] < 0 and np.abs(yprime) < 0.00001 and recovered == -2:
                 recovered = -1
                 
             if recovered == -1:
@@ -278,15 +288,8 @@ def main():
         # New force vector
         F = cf.forceDueFields(v,B,E_tot,q)
         
-        # New arc position
-        
-        s_old = s
-        s = s_old + dt * np.sqrt(v[0]**2 + v[1]**2)
-        
         if np.sqrt(v[0]**2 + v[1]**2) > c:
             print('illegal!!')
-        
-        yprime = (x[2] - x_old[2])/(s - s_old)
         
         if np.abs(yprime) < yprime_limit and x[2] > 0:
             
