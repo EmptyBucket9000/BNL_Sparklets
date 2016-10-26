@@ -32,18 +32,6 @@ def getElectricField(x,R,B,n):
     E = np.array([0,0,-((n*c*mag(B))/R)*x[2]]) #/0.41 # when quads added in
     
     return E
-    
-def inQuad(E_tot,E,x,E_drop,dqel_theta,sqel_theta):
-                        
-    if passthroughElementContact(x,dqel_theta):
-        E_tot = E - E_drop
-            
-    elif passthroughElementContact(x,sqel_theta):
-        E_tot = E
-        
-    else: E_tot = E
-    
-    return E_tot
 
 ## Checks if inside a quad it can pass through
     
@@ -126,7 +114,6 @@ def beta2Momentum(beta,m):
     v = beta*c    
     v_mag = mag(v)
     beta_mag = v_mag/c
-#    beta_mag = mag(beta)
     gamma = beta2Gamma(beta_mag)
     p = gamma*m*beta
     
@@ -156,19 +143,18 @@ def gamma2Beta(g):
     
     return beta
     
-## Convert particle momentum to relativistic beta vector
+## Convert particle scalar momentum to relativistic beta
     
 def momentumScalar2Beta(p,m):
 
     beta = np.sqrt(p**2/(m**2 + p**2))
     
     return beta
-    
+
+## Convert particle vector momentum to relativistic beta vector
 def momentum2Beta(p,m):
     
-    p = np.array([p[0],p[1],p[2]])
     p_norm = mag(p)
-    
     beta = 1/np.sqrt((m/p_norm)**2 + 1)
     v = beta*c
     v = v*(p/p_norm)
@@ -176,7 +162,7 @@ def momentum2Beta(p,m):
 
     return beta
     
-# Get the magnitude of some vector
+## Get the magnitude of some vector
     
 def mag(v):
     
